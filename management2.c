@@ -17,7 +17,29 @@ int main()
 							  clear();
 							  if(login()){
 								  clear();
-								  menu();
+								  login_flag=0;
+								  while(!login_flag){
+									  switch(menu()){
+									  	case MENU_ASSIGN: {
+															  clear();
+															  Search_Assign();
+															  break;
+														  }
+										case MENU_CGPA:{
+														   clear();
+														   Search_CGPA();
+														   break;
+													   }
+										case MENU_CHANGE:{
+															 clear();
+															 Change_Password();
+															 break;
+														 }
+										case MENU_LOGOUT:{
+															 clear();
+															 login_flag=1;
+														 }
+									  }
 							  }
 							  clear();
 							  break;
@@ -263,16 +285,18 @@ char menu()
 	refresh();
 	noecho();
 	return wgetch(stdscr);
-}/*
+}
 void Search_Assign()
 {
 	int Asize;
 	char input;
 	clear();
 	printw("<Assignment Management for %s>\n",Curr_Num);
-	Asize = TOP->ST_YEAR[Login_Year].ST_NUM[Login_Num].Assign_Size;
-	Sort_Assign();
-	Print_Assign(Asize);
+	Asize = Login_num->Assign_Size;
+	if(Asize){
+		Sort_Assign();
+		Print_Assign(Asize);
+	}
 	printw("1. New Assignment\n2. Delete Assignment\n3. Return to main menu\n");
 	noecho();
 	input=wgetch(stdscr);
@@ -290,10 +314,7 @@ void Print_Assign(int Asize)
 	int k,D_day,thistime,thattime;
 	time_t t;
 	struct tm *today;
-	int i;
-	int j;
-	i=Login_Year;
-	j=Login_Num;
+	
 	t = time(NULL);
 	today = localtime(&t);
 	thistime = mktime(today);
@@ -303,7 +324,7 @@ void Print_Assign(int Asize)
 
 
 }
-
+/*
 char cgpa_menu()
 {
 	printw("1. Add new GPA or Change existing GPA\n");
@@ -409,16 +430,55 @@ void Print_CGPA_Graph()
  	/*
 		To do...(Additional)
 	
-}
+}*/
 void Sort_Assign()
 {
-  
-  /*
-  
-  	To do...
-  
-  
+	ASSIGN* cur;
+	ASSIGN* pre;
+	ASSIGN* insert_position;
+
+	pre=Login_num->Child_C;
+	cur=Login_num->Child_C->link;
+
+	while(cur != NULL){
+		insert_position=Login_num->Child_C;
+		if(insert_position->date[0] > cur_date[0]){
+			pre->link=cur->link;
+			cur->link=Login_num->Child_C;
+			Login_num->Child_C=cur;
+			pre=cur;
+			cur=cur->link;
+			continue;
+		}
+		else if(insert_position->date[0] == cur_date[0] && insert_position->date[1] > cur_date[1]){
+			pre->link=cur->link;
+			cur->link=Login_num->Child_C;
+			Login_num->Child_C=cur;
+			pre=cur;
+			cur=cur->link;
+			continue;
+		}
+		while(insert_position != pre){
+			if(insert_position->link->date[0]>cur_date[0])
+				break;
+			else if(insert_position->link->date[0] == cur_date[0] && insert_position->link->date[1] > cur_date[1])
+				break;
+			insert_position=insert_position->link;
+		}
+		if(insert != pre){
+			pre->link=cur->link;
+			cur->link=insert_position->link;
+			insert_position->link=cur;
+		}
+		pre=cur;
+		cur=cur->link;
+	}
+	printing();
+	noecho();
+	wgetch(strscr);
+	clear();
 }
+/*
 void Add_Assign()
 {
   //Login_Num,Login_Year
@@ -568,8 +628,32 @@ void Delete_Account()
 }
 void Change_Password()
 {
-	printw("Enter new password:");
-
+	char new[16];
+	char confirm[16];
+	while(1){
+		printw("Enter new password:");
+		refresh();
+		noecho();
+		scanw("%15s",new);
+		printw("Confirm new password:");
+		refresh();
+		noecho();
+		scanw("%15s", confirm);
+		if(strncmp(new,confirm,strlen(new)) == 0){
+			strncpy(Login_Num->password, new, strlen(new)+1);
+			printw("Password of Account <%s%s> is successfully changed.\n",Login_Year->year,Login_Num->number);
+			refresh();
+			break;
+		}
+		printw("Two passwords are not matched.\n");
+		clear();
+	}
+	noecho();
+	wgetch(stdscr);
+	printing();
+	noecho();
+	wgetch(stdscr);
+	clear();
 }
 
 int login()
