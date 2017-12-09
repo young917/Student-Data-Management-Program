@@ -25,11 +25,11 @@ int main()
 															  Search_Assign();
 															  break;
 														  }
-										case MENU_CGPA:{
+									/*	case MENU_CGPA:{
 														   clear();
 														   Search_CGPA();
 														   break;
-													   }
+													   }*/
 										case MENU_CHANGE:{
 															 clear();
 															 Change_Password();
@@ -40,6 +40,8 @@ int main()
 															 login_flag=1;
 														 }
 									  }
+									  clear();
+							  	}
 							  }
 							  clear();
 							  break;
@@ -67,7 +69,7 @@ int main()
 	  }		   
   }
   endwin();
-  Save_Data();
+  //Save_Data();
   system("clear");
   return 0;
 }
@@ -80,15 +82,6 @@ void Save_Data()
   int current_cgpa;
   FILE* fpoint;
   fpoint=fopen("data.txt","w");
-
-	/*
-	
-		To do...
-	
-	*/
-	
-
-
 }
 void Create_Struct()
 {
@@ -292,18 +285,20 @@ void Search_Assign()
 	char input;
 	clear();
 	printw("<Assignment Management for %s>\n",Curr_Num);
-	Asize = Login_num->Assign_Size;
+	refresh();
+	Asize = Login_Num->Assign_Size;
 	if(Asize){
 		Sort_Assign();
 		Print_Assign(Asize);
 	}
-	printw("1. New Assignment\n2. Delete Assignment\n3. Return to main menu\n");
+	printw("1. New Assignment\n2. Delete Assignment\n3. Return to main menu\n\n");
+	refresh();
 	noecho();
 	input=wgetch(stdscr);
 	switch(input)
 	{
-		case '1': Add_Assign(); break;
-		case '2': Delete_Assign(); break;
+		case '1': Add_Assign();break;
+		case '2': Delete_Assign();break;
 		case '3': return; break;
 	}
 	clear();
@@ -311,40 +306,89 @@ void Search_Assign()
 
 void Print_Assign(int Asize)
 {
-	int k,D_day,thistime,thattime;
+	ASSIGN * cur_assign;
+	int month,today_month,k,D_day,thistime,thattime;
 	time_t t;
 	struct tm *today;
 	
 	t = time(NULL);
 	today = localtime(&t);
 	thistime = mktime(today);
-	
-	   To do...
-	   
-
-
+	today_month=today->tm_mon;
+	today_month+=1;
+	cur_assign=Login_Num->Child_A;
+	k=1;
+	printw("%d mon, %d date\n",today_month,today->tm_mday);
+	refresh();
+	while(cur_assign != NULL){
+		printw("<%d> Name	: %s\n",k++,cur_assign->name);
+		printw("    Describe	: %s\n",cur_assign->describe);
+		printw("    Professor	: %s\n",cur_assign->professor);
+		printw("    Due	: %d/%d\n",cur_assign->date[0],cur_assign->date[1]);
+		refresh();
+		if(today_month < cur_assign->date[0]){
+			month=cur_assign->date[0];
+			D_day=0;
+			while(month != today_month){
+				if(month == 2)
+					D_day+=28;
+				else if(month<=7 && month%2 == 1)
+					D_day+=31;
+				else if(month>7 && month%2 == 0)
+					D_day+=31;
+				else
+					D_day+=30;
+				month++;
+			}
+			printw("    D-day	: -%d\n",(D_day)+(today->tm_mday)-(cur_assign->date[1]));
+		}
+		else if(today_month == cur_assign->date[0]){
+			if(today->tm_mday == cur_assign->date[1])
+				printw("    TODAY!\n");
+			else if(today->tm_mday<cur_assign->date[1])
+				printw("    D-day	: -%d\n",(cur_assign->date[1]-(today->tm_mday)));
+			else
+				printw("    D-day over!!\n");
+		}
+		else
+			printw("    D-day over!!\n");
+		printw("\n");
+		refresh();
+		cur_assign=cur_assign->link;
+	}
 }
-/*
 char cgpa_menu()
 {
 	printw("1. Add new GPA or Change existing GPA\n");
 	printw("2. View all\n");
 	printw("3. Exit\n");
+	refresh();
+	noecho();
 	return wgetch(stdscr);
 }
 void Search_CGPA() 
 {
 	int exit;
-	Curr_year_index=Login_Year;
-	Curr_num_index=Login_Num;
 	while(!exit)
 	{
 		clear();
 		switch(cgpa_menu())
 		{
-			case CGPA_ADD: Add_GPA(); break;
-			case CGPA_VIEW: Print_CGPA(); break;
-			case CGPA_QUIT: exit = 1; break;
+			case CGPA_ADD:{
+							  clear();
+							  Add_GPA();
+							  break;
+						  }
+			case CGPA_VIEW: {
+								clear();
+								Print_CGPA();
+								break;
+							}
+			case CGPA_QUIT: {
+								clear();
+								exit = 1;
+								break;
+							}
 			default: break;
 		}
 	}
@@ -412,10 +456,7 @@ void Print_CGPA() //Additional
   printw("------------------------------\n");
   printw("  Semester  |  GPA  |  CGPA  |  \n");
   for(i = 0 ; i < TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].CGPA_Size ; i++) 
-  {
-    
-		To do...
-    
+  {    
     printw("------------------------------\n");
     printw("     %d      |  %.2f |  %.2f  |\n", tmpSemester, tmpGPA, sum/(i + 1));
   }
@@ -426,46 +467,43 @@ void Print_CGPA() //Additional
   getch();
 }
 void Print_CGPA_Graph() 
-{
- 	/*
-		To do...(Additional)
-	
-}*/
+{	
+}
 void Sort_Assign()
 {
 	ASSIGN* cur;
 	ASSIGN* pre;
 	ASSIGN* insert_position;
 
-	pre=Login_num->Child_C;
-	cur=Login_num->Child_C->link;
+	pre=Login_Num->Child_A;
+	cur=Login_Num->Child_A->link;
 
 	while(cur != NULL){
-		insert_position=Login_num->Child_C;
-		if(insert_position->date[0] > cur_date[0]){
+		insert_position=Login_Num->Child_A;
+		if(insert_position->date[0] > cur->date[0]){
 			pre->link=cur->link;
-			cur->link=Login_num->Child_C;
-			Login_num->Child_C=cur;
+			cur->link=Login_Num->Child_A;
+			Login_Num->Child_A=cur;
 			pre=cur;
 			cur=cur->link;
 			continue;
 		}
-		else if(insert_position->date[0] == cur_date[0] && insert_position->date[1] > cur_date[1]){
+		else if(insert_position->date[0] == cur->date[0] && insert_position->date[1] > cur->date[1]){
 			pre->link=cur->link;
-			cur->link=Login_num->Child_C;
-			Login_num->Child_C=cur;
+			cur->link=Login_Num->Child_A;
+			Login_Num->Child_A=cur;
 			pre=cur;
 			cur=cur->link;
 			continue;
 		}
 		while(insert_position != pre){
-			if(insert_position->link->date[0]>cur_date[0])
+			if(insert_position->link->date[0]>cur->date[0])
 				break;
-			else if(insert_position->link->date[0] == cur_date[0] && insert_position->link->date[1] > cur_date[1])
+			else if(insert_position->link->date[0] == cur->date[0] && insert_position->link->date[1] > cur->date[1])
 				break;
 			insert_position=insert_position->link;
 		}
-		if(insert != pre){
+		if(insert_position != pre){
 			pre->link=cur->link;
 			cur->link=insert_position->link;
 			insert_position->link=cur;
@@ -473,33 +511,122 @@ void Sort_Assign()
 		pre=cur;
 		cur=cur->link;
 	}
-	printing();
-	noecho();
-	wgetch(strscr);
-	clear();
 }
-/*
+
 void Add_Assign()
 {
-  //Login_Num,Login_Year
-  /*
-  	To do...
-  
-  
-  }
+	ASSIGN* new=malloc(sizeof(ASSIGN));
+	printw("Enter the name of new assignment:\n");
+	refresh();
+	echo();
+	scanw("%99[^\n]%*c",new->name);
+	printw("Enter the description of new assignment:\n");
+	refresh();
+	echo();
+	scanw("%99[^\n]%*c",new->describe);
+	printw("Enter the professor of new assignment:\n");
+	refresh();
+	echo();
+	scanw("%99[^\n]%*c",new->professor);
+	printw("Enter the due month of new assignment: ");
+	refresh();
+	echo();
+	scanw("%d",&new->date[0]);
+	printw("Enter the due day of new assignment: ");
+	refresh();
+	echo();
+	scanw("%d",&new->date[1]);
+	new->link=Login_Num->Child_A;
+	Login_Num->Child_A=new;
+	Login_Num->Assign_Size+=1;
+	printw("New assignment is successfully added!!\n");
+	refresh();
+	noecho();
+	wgetch(stdscr);
+	clear();
+}
 void Delete_Assign()
 {
-  /*
-  	To do...
-   
-  
+	int flag=0;
+	char compare1[300];
+	char compare2[300];
+	int date[2];
+	ASSIGN* pre;
+	ASSIGN* cur;
+
+	if(Login_Num->Assign_Size == 0){
+		printw("There is no assignment\n");
+		refresh();
+		noecho();
+		wgetch(stdscr);
+		clear();
+		return;
+	}
+	printw("Enter the name of assignment you want to delete:\n");
+	refresh();
+	echo();
+	scanw("%99[^\n]%*c",compare1);
+	printw("Enter the description of assignment you want to delete:\n");
+	refresh();
+	echo();
+	scanw("%99[^\n]%*c",compare2);
+	strncat(compare1,compare2,strlen(compare2));
+	printw("Enter the professor of assignment you want to delete:\n");
+	refresh();
+	echo();
+	scanw("%99[^\n]%*c",compare2);
+	strncat(compare1,compare2,strlen(compare2));
+	printw("Enter the due month of assignment you want to delete: ");
+	refresh();
+	echo();
+	scanw("%d",&date[0]);
+	printw("Enter the due day of assignment you want to delete: ");
+	refresh();
+	echo();
+	scanw("%d",&date[1]);
+	pre=NULL;
+	cur=Login_Num->Child_A;
+	while(cur != NULL && cur->date[0]<date[0]){
+		pre=cur;
+		cur=cur->link;
+	}
+	while(cur != NULL && cur->date[1] < date[1]){
+		if(cur->date[0] != date[0])
+			break;
+		pre=cur;
+		cur=cur->link;
+	}
+	while(cur != NULL && cur->date[1] == date[1] && cur->date[0] == date[0]){
+		strncpy(compare2,cur->name,strlen(cur->name)+1);
+		strncat(compare2,cur->describe,strlen(cur->describe));
+		strncat(compare2,cur->professor,strlen(cur->professor));
+		if(strlen(compare1) == strlen(compare2) && strncmp(compare1,compare2,strlen(compare2)) == 0){
+			flag=1;
+			break;
+		}
+		pre=cur;
+		cur=cur->link;
+	}
+	if(flag){
+		printw("Successfully Deleted\n");
+		refresh();
+    	Login_Num->Assign_Size-=1;
+		if(pre == NULL)
+			Login_Num->Child_A=cur->link;
+		else
+			pre->link=cur->link;
+		free(cur);
+	}
+	noecho();
+	wgetch(stdscr);
+	clear();
 }
+
+/*
 void Add_CGPA()
-{
-  //Login_Num,Login_Year
-   
-  
-}*/
+{ 
+}
+*/
 void New_Account()
 {
 	int i;
@@ -698,19 +825,19 @@ int login()
 		cur_student=cur_student->link;
       }
   }
-  if(num_flag==1)
-  {
-    if(strncmp(cur_student->password,Curr_Pass,sizeof(Curr_Pass)))
-    {
-      pass_flag=1;
-      Login_Year=cur_year;//stores logged in user's year
-      Login_Num=cur_student;//stores logged in user's number
-    }
+  if(num_flag==1){
+	  if(!strncmp(cur_student->password,Curr_Pass,strlen(Curr_Pass))){
+		  pass_flag=1;
+      	  Login_Year=cur_year;//stores logged in user's year
+      	  Login_Num=cur_student;//stores logged in user's number
+   	  }
   }
   if(pass_flag==1)
     return 1;
   printw("Login fail\n");
   refresh();
+  noecho();
+  wgetch(stdscr);
   return 0;
 }
 
