@@ -25,11 +25,11 @@ int main()
 															  Search_Assign();
 															  break;
 														  }
-									/*	case MENU_CGPA:{
+										case MENU_CGPA:{
 														   clear();
 														   Search_CGPA();
 														   break;
-													   }*/
+													   }
 										case MENU_CHANGE:{
 															 clear();
 															 Change_Password();
@@ -69,19 +69,55 @@ int main()
 	  }		   
   }
   endwin();
-  //Save_Data();
+  Save_Data();
   system("clear");
   return 0;
 }
 void Save_Data()
 {
   int i,j,k;
-  int current_year;
-  int current_num;
-  int current_assign;
-  int current_cgpa;
+  YEAR *pre_year;
+  YEAR *cur_year;
+  STUDENT *pre_num;
+  STUDENT *cur_num;
+  ASSIGN *pre_assign;
+  ASSIGN *cur_assign;
+  CGPA *pre_cgpa;
+  CGPA *cur_cgpa;
   FILE* fpoint;
   fpoint=fopen("data.txt","w");
+  cur_year=TOP->ST_YEAR;
+  while(cur_year != NULL){
+	  cur_num=cur_year->ST_NUM;
+	  while(cur_num != NULL){
+		  fprintf(fpoint,"%s%s\n",cur_year->year,cur_num->number);
+	 	  fprintf(fpoint,"%s\n",cur_num->password);
+	  	  fprintf(fpoint,"%d/%d\n",cur_num->Assign_Size,cur_num->CGPA_Size);
+		  cur_assign=cur_num->Child_A;
+		  pre_assign=NULL;
+		  while(cur_assign != NULL){
+			  fprintf(fpoint,"%s/%s/%s/%d/%d\n",cur_assign->name,cur_assign->describe,cur_assign->professor,cur_assign->date[0],cur_assign->date[1]);
+			  pre_assign=cur_assign;
+			  cur_assign=cur_assign->link;
+			  free(pre_assign);
+		  }
+		  pre_cgpa=NULL;
+		  cur_cgpa=cur_num->Child_C;
+		  while(cur_cgpa != NULL){
+			  fprintf(fpoint,"%d-%.2f\n",cur_cgpa->semester,cur_cgpa->score);
+			  pre_cgpa=cur_cgpa;
+			  cur_cgpa=cur_cgpa->link;
+			  free(pre_cgpa);
+		  }
+		  pre_num=cur_num;
+		  cur_num=cur_num->link;
+		  free(pre_num);
+	  }
+	  pre_year=cur_year;
+	  cur_year=cur_year->link;
+	  free(pre_year);
+  }
+  free(TOP);
 }
 void Create_Struct()
 {
@@ -368,7 +404,7 @@ char cgpa_menu()
 }
 void Search_CGPA() 
 {
-	int exit;
+	int exit=0;
 	while(!exit)
 	{
 		clear();
@@ -399,75 +435,195 @@ void Add_GPA()
 	char semester;
 	float gpa;
 	int gpa_size;
+	CGPA *cur;
 	clear();
 	echo();
 	printw("Input the semester of GPA : ");
+	refresh();
 	scanw("%c", &semester);
-
-  gpa_size = TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].CGPA_Size;  
-
-  if(semester - '0' > (gpa_size + 1) || semester - '0' < 1) {
-    printw("You entered wrong number!\n");
-    getch();
-    return ;
-  } 
-  printw("Input the GPA : ");
-  scanw("%f", &gpa);
-
-  if(gpa < 0 || gpa > 4.31) {
-    printw("You entered wrong number!\n");
-    getch();
-    return ;
-  }
-
-  if(semester - '0' <= gpa_size) {
-    Cor_GPA(semester, gpa);
-    return ;
-  }
-
-  TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].CGPA_Size++;
-  gpa_size++;
-
-  TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C = (CGPA*)realloc(TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C,gpa_size * sizeof(CGPA));
-
-  TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C[gpa_size - 1].semester = semester - '0';
-  TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C[gpa_size - 1].score = gpa; 
-
-  return ;
-
+  	gpa_size = Login_Num->CGPA_Size;  
+ 	if(semester - '0' > (gpa_size + 1) || semester - '0' < 1) {
+    	printw("You entered wrong number!\n");
+    	getch();
+    	return ;
+  	} 
+  	printw("Input the GPA : ");
+	refresh();
+	echo();
+  	scanw("%f", &gpa);
+  	if(gpa < 0 || gpa > 4.31) {
+    	printw("You entered wrong number!\n");
+    	getch();
+    	return ;
+  	}
+  	if(semester - '0' <= gpa_size) { // change existing gpa
+    	Cor_GPA(semester, gpa);
+    	return ;
+  	}
+	// add new gpa
+  	Login_Num->CGPA_Size++;
+  	gpa_size++;
+	if(gpa_size == 1){
+		cur=malloc(sizeof(CGPA));
+		cur->semester=semester-'0';
+		cur->score=gpa;
+		cur->link=NULL;
+		Login_Num->Child_C=cur;
+	}
+	else{
+		cur=Login_Num->Child_C;
+		while(cur->link != NULL)
+			cur=cur->link;
+		cur->link=malloc(sizeof(CGPA));
+		cur=cur->link;
+		cur->semester=semester-'0';
+		cur->score=gpa;
+		cur->link=NULL;
+	}
+	return ;
 }
 void Cor_GPA(char semester, float gpa) 
 {
   int i;
-  TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].Child_C[semester - '0' - 1].score = gpa;
-  printw("GPA is changed successfully!\n");
+  CGPA *cur;
+  cur=Login_Num->Child_C;
+  while(cur!= NULL && cur->semester<(semester-'0'))
+	  cur=cur->link;
+  if(cur != NULL && cur->semester == semester-'0'){
+	  cur->score=gpa;
+	  printw("GPA is changed successfully!\n");
+  }
+  else
+	  printw("GPA is not changed\n");
+  refresh();
   getch();
   return ;
-
 }
 void Print_CGPA() //Additional
 {
-  int i;
+  int i=0;
   int tmpSemester;
   float tmpGPA;
   float sum = 0;
+  CGPA *cur;
   clear();
   printw("<CGPA Management for %s>\n", Curr_Num);
   printw("------------------------------\n");
   printw("  Semester  |  GPA  |  CGPA  |  \n");
-  for(i = 0 ; i < TOP -> ST_YEAR[Curr_year_index].ST_NUM[Curr_num_index].CGPA_Size ; i++) 
-  {    
-    printw("------------------------------\n");
-    printw("     %d      |  %.2f |  %.2f  |\n", tmpSemester, tmpGPA, sum/(i + 1));
+  refresh();
+  cur=Login_Num->Child_C;
+  while(cur != NULL)
+  {
+	  tmpSemester=cur->semester;
+	  tmpGPA=cur->score;
+	  sum+=tmpGPA;
+	  printw("------------------------------\n");
+      printw("     %d      |  %.2f |  %.2f  |\n", tmpSemester, tmpGPA, sum/(++i));
+	  refresh();
+	  cur=cur->link;
   }
   printw("------------------------------\n\n");
   printw("<CGPA Management by Graph for %s>\n", Curr_Num);
   printw("(x-axis : semester,  y-axis : score)\n");
+  refresh();
   Print_CGPA_Graph();
   getch();
 }
 void Print_CGPA_Graph() 
-{	
+{
+	CGPA *cgpa_list;
+	CGPA *cur_cgpa;
+	int i,j,k;
+	int index;
+	int temp_semester;
+	float temp_score;
+	int insert_index; // cgpa_list[index] will be inserted in front of cgpa_list[insert_index]
+	int cgpa_size;
+	float left;
+	float right;
+	float *score_list;
+	
+	cgpa_size=Login_Num->CGPA_Size;
+	cgpa_list=malloc(sizeof(CGPA)*cgpa_size);
+	score_list=malloc(sizeof(float)*8);
+	for(i=0;i<8;i++)
+		score_list[i]=-1;
+	index=0;
+	cur_cgpa=Login_Num->Child_C;
+	while(cur_cgpa != NULL){
+		cgpa_list[index++]=*(cur_cgpa);
+		cur_cgpa=cur_cgpa->link;
+	}
+	for(index=1;index<cgpa_size;index++){
+		insert_index=0;
+		while(insert_index<index &&  cgpa_list[insert_index].score>cgpa_list[index].score)
+			insert_index++;
+		if(cgpa_list[insert_index].score == cgpa_list[index].score){
+			while(cgpa_list[insert_index].score == cgpa_list[index].score && cgpa_list[insert_index].semester<cgpa_list[index].semester)
+				insert_index++;
+		}
+		if(insert_index == index)
+			continue;
+		temp_semester=cgpa_list[index].semester;
+		temp_score=cgpa_list[index].score;
+		for(;index>insert_index;index--){
+			cgpa_list[index]=cgpa_list[index-1];
+		}
+		cgpa_list[insert_index].score=temp_score;
+		cgpa_list[insert_index].semester=temp_semester;
+	}
+	index=0;
+	j=4;
+	for(i=4;i>=0;i--){
+		for(;j>0;j--){
+			if(j ==1)
+				printw(" %d.0 |",i);
+			else
+				printw("     |");
+			for(k=1;k<=8;k++){
+				if(index < cgpa_size && k == cgpa_list[index].semester){
+					right=0.2*j+i;
+					left=0.2*(j-1)+i;
+					if(cgpa_list[index].score < right && cgpa_list[index].score >= left){
+						printw("  *   ");
+						score_list[cgpa_list[index].semester-1]=cgpa_list[index].score;
+						index++;
+						continue;
+					}				
+				}
+				if(score_list[k-1]>=0){
+					printw(" %.2f ",score_list[k-1]);
+					score_list[k-1]=-1;
+				}
+				else{
+					printw("      ");
+					score_list[k-1]=-1;
+				}
+				refresh();
+			}
+			printw("\n");
+			refresh();
+		}
+		j=5;
+	}
+	for(i=0;i<9;i++)
+		printw("------");
+	printw("\n");
+	refresh();
+	printw("     |");
+	for(i=1;i<=8;i++)
+		printw("  %d  |",i);
+	printw("\n");
+	refresh();
+	free(score_list);
+	free(cgpa_list);
+	/*
+	checking
+	for(index=0;index<cgpa_size;index++){
+		printw("score :%f, semester: %d\n",cgpa_list[index].score,cgpa_list[index].semester);
+	}
+	refresh();
+	getch();*/
 }
 void Sort_Assign()
 {
@@ -621,12 +777,6 @@ void Delete_Assign()
 	wgetch(stdscr);
 	clear();
 }
-
-/*
-void Add_CGPA()
-{ 
-}
-*/
 void New_Account()
 {
 	int i;
