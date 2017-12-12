@@ -9,14 +9,12 @@ int main()
   char choice;
   initscr();
   Create_Struct();
-  printing();
   while(!exit)
   {
 	  switch(Account_Manage()){
 		  case MENU_LOGIN:{
 							  clear();
 							  if(login()){
-								  clear();
 								  login_flag=0;
 								  while(!login_flag){
 									  switch(menu()){
@@ -38,12 +36,23 @@ int main()
 										case MENU_LOGOUT:{
 															 clear();
 															 login_flag=1;
+															 break;
 														 }
+										//for st
+										case 5:{
+												   clear();
+												   printing();
+												   break;
+											   }
+										default: {
+													 printw("Wrong enter\nPlease enter any key to choose again\n");
+													 refresh();
+													 getch();
+													 clear();
+												 }
 									  }
-									  clear();
 							  	}
 							  }
-							  clear();
 							  break;
 						  }
 		  case MENU_NEW: {
@@ -64,8 +73,21 @@ int main()
 		  case MENU_QUIT: {
 							  clear();
 							  exit=1;
-							  
-						  }
+							  break;
+							 }
+		  //for test
+		  case 6: {
+					  clear();
+					  printing();
+					  break;
+				  }
+		  default:{
+					  printw("Wrong enter\nPlease enter any key to choose again\n");
+					  refresh();
+					  getch();
+					  clear();
+				  }
+				  
 	  }		   
   }
   endwin();
@@ -127,10 +149,9 @@ void Create_Struct()
   int current_assign;
   int current_cgpa;
   char* token;
-  char temp[350];
+  char temp[350]; // store temporarily student's year
   FILE* fpoint;
-  YEAR* Cur_year;
-  YEAR* Pre_year;
+  YEAR* Cur_year; // entered student will put into Cur_year and it indicate the YEAR(structure) where previously entered student is stored.
   YEAR* New_year;
   STUDENT* Pre_student;
   STUDENT* New_student;
@@ -139,44 +160,53 @@ void Create_Struct()
   ASSIGN* New_assign;
   ASSIGN* Cur_assign;
   CGPA* New_CGPA;
-  CGPA* Cur_CGPA;
+  CGPA* Cur_CGPA;  
   CGPA* Pre_CGPA;
-  
   fpoint=fopen("data.txt","r");
+
+  //TOP initialization
   TOP=(TREE_HEAD*)malloc(sizeof(TREE_HEAD));
   TOP->Year_Size=0;
   TOP->ST_YEAR=NULL;
   Pre_year=NULL;
+
   while(1){
-	  if(fscanf(fpoint,"%4s",temp)== EOF)
-		  break;
-	  if(TOP->Year_Size == 0){
+	  if(fscanf(fpoint,"%4s",temp)== EOF) // take year
+		  break; 
+	  if(TOP->Year_Size == 0){ // case : there is no YEAR(structure)
 		  TOP->Year_Size=1;
-		  Cur_year=(YEAR*)malloc(sizeof(YEAR));
-		  TOP->ST_YEAR=Cur_year;
-		  strncpy(Cur_year->year,temp,5);
-		  Cur_year->Num_Size=0;
-		  Cur_year->ST_NUM=NULL;
-		  Cur_year->link=NULL;
+		  New_year=(YEAR*)malloc(sizeof(YEAR));
+		  TOP->ST_YEAR=New_year;
+		  strncpy(New_year->year,temp,5);
+		  New_year->Num_Size=0;
+		  New_year->ST_NUM=NULL;
+		  New_year->link=NULL;
+		  Cur_year=New_year;
 	  }
 	  else{
-		  if(strncmp(temp,Cur_year->year,4)<0){
+           // [ case : previously stored student's year is bigger than currently entered student's year ] ->(then) search from the first(TOP->ST_YEAR)
+		   // not the case ->(then) search from Cur_year;
+		   if(strncmp(temp,Cur_year->year,4)<0){ 
 			  Pre_year=NULL;
 			  Cur_year=TOP->ST_YEAR;
-		  }
-		  while(Cur_year!= NULL && strncmp(temp,Cur_year->year,4)>0){
+		   }
+	
+		   while(Cur_year!= NULL && strncmp(temp,Cur_year->year,4)>0){
 			  Pre_year=Cur_year;
 			  Cur_year=Cur_year->link;
-		  }
-		  if(Cur_year == NULL){
+		   }
+		   // case : all stored year is smaller than current year
+		   if(Cur_year == NULL){ 
 			  TOP->Year_Size+=1;
-			  Cur_year=(YEAR*)malloc(sizeof(YEAR));
-			  strncpy(Cur_year->year,temp,5);
-			  Cur_year->Num_Size=0;
-			  Cur_year->ST_NUM=NULL;
-			  Cur_year->link=NULL;
-			  Pre_year->link=Cur_year;
+			  New_year=(YEAR*)malloc(sizeof(YEAR));
+			  strncpy(New_year->year,temp,5);
+			  New_year->Num_Size=0;
+			  New_year->ST_NUM=NULL;
+			  New_year->link=NULL;
+			  Pre_year->link=New_year;
+			  Cur_year=New_year;
 		  }
+		   // case : there is no year corrresponding to current year
 		  else if(strncmp(temp,Cur_year->year,4) != 0){
 			  TOP->Year_Size+=1;
 			  New_year=(YEAR*)malloc(sizeof(YEAR));
@@ -202,17 +232,22 @@ void Create_Struct()
 	  Cur_year->Num_Size+=1;
 	  New_student->Child_A=NULL;
 	  New_student->Child_C=NULL;
+	  New_student->link=NULL;
+
+	  //find insert point starting from Cur_year->ST_NUM)
 	  Pre_student=NULL;
 	  Cur_student=Cur_year->ST_NUM;
 	  while(Cur_student != NULL && strncmp(Cur_student->number,New_student->number,4)<0){
 		  Pre_student=Cur_student;
 		  Cur_student=Cur_student->link;
 	  }
+	  //case : insert at front
 	  if(Pre_student == NULL){
 		  New_student->link=Cur_year->ST_NUM;
 		  Cur_year->ST_NUM=New_student;
 		  Cur_student=New_student;
 	  }
+	  //case : already stored student is entered 
 	  else if(Cur_student != NULL && strncmp(Cur_student->number,New_student->number,4)== 0){
 		  Cur_year->Num_Size-=1;
 	  }
@@ -221,7 +256,9 @@ void Create_Struct()
 		  Pre_student->link=New_student;
 		  Cur_student=New_student;
 	  }
-	  // Cur_student에 assign linked-list만들고 head 넣고 CGPA linke_list만들고 head넣기
+
+	  // Put assign linked-list and CGPA linke_list into Cur_student
+	  // put assignment like 'queue'
 	  Pre_assign=NULL;
 	  current_num = Cur_student->Assign_Size;
 	  for(i=0;i<current_num;i++){
@@ -234,18 +271,22 @@ void Create_Struct()
 			  Pre_assign->link=New_assign;
 		  Pre_assign=New_assign;
 	  }
-	  Cur_CGPA=Cur_student->Child_C;
+
+	  Cur_CGPA=Cur_student->Child_C; // Cur_CGPA is insert point and where previously entered CGPA is stored.
 	  current_num=Cur_student->CGPA_Size;
 	  for(i=0;i<current_num;i++){
 		  New_CGPA=(CGPA*)malloc(sizeof(CGPA));
 		  fscanf(fpoint,"%d%*c%f%*c",&New_CGPA->semester,&New_CGPA->score);
 		  New_CGPA->link=NULL;
+		  // case: there is no CGPA in the Cur_student's CGPA list
 		  if(Cur_CGPA == NULL){
 			  Pre_CGPA=NULL;
 			  Cur_student->Child_C=New_CGPA;
 			  Cur_CGPA=New_CGPA;
 			  continue;
 		  }
+		  // [ case: previously stored CGPA is bigger than currently entered CGPA ] ->(then) search insert point from start(Cur_student->Child_C)
+		  // no the case ->(then) search insert point from Cur_CGPA
 		  else if(Cur_CGPA->semester>New_CGPA->semester){
 			  Pre_CGPA=NULL;
 			  Cur_CGPA=Cur_student->Child_C;
@@ -275,22 +316,26 @@ void printing(){
   	printw("Year_Size : %d\n",TOP->Year_Size);
 	refresh();
   	for(Cur_year=TOP->ST_YEAR;Cur_year!= NULL;Cur_year=Cur_year->link){
-		printw("Year : %s / Year number : %d\n",Cur_year->year,Cur_year->Num_Size);
+		printw("Year : %s / Year number : %d\n\n",Cur_year->year,Cur_year->Num_Size);
 		refresh();
 	 	for(Cur_student=Cur_year->ST_NUM;Cur_student!=NULL;Cur_student=Cur_student->link){
-		  printw("student) number: %s / password: %s / Assign number :  %d / CGPA number : %d\n",Cur_student->number,Cur_student->password,Cur_student->Assign_Size,Cur_student->CGPA_Size);
+		  printw("number: %s / password: %s\n",Cur_student->number,Cur_student->password);
 		  refresh();
+		  printw("assignment %d개\n", Cur_student->Assign_Size);
 		  for(Cur_assign=Cur_student->Child_A;Cur_assign!=NULL;Cur_assign=Cur_assign->link){
 			  printw("name : %s / describe : %s / professor :  %s /  date : %d:%d\n",Cur_assign->name,Cur_assign->describe,Cur_assign->professor,Cur_assign->date[0],Cur_assign->date[1]);
 			  refresh();
 		  }
+		  printw("CGPA %d개\n",Cur_student->CGPA_Size);
 		  for(Cur_CGPA=Cur_student->Child_C;Cur_CGPA!=NULL;Cur_CGPA=Cur_CGPA->link){	
 			  printw("semester : %d score : %.2f\n",Cur_CGPA->semester,Cur_CGPA->score);
 			  refresh();
 		  }
+		  printw("\n");
+		  refresh();
 	  	}
 	}
-	wgetch(stdscr);
+	getch();
 	clear();
 }
 
@@ -323,7 +368,7 @@ void Search_Assign()
 	printw("<Assignment Management for %s>\n",Curr_Num);
 	refresh();
 	Asize = Login_Num->Assign_Size;
-	if(Asize){
+	if(Asize){ // case : assignment exist
 		Sort_Assign();
 		Print_Assign(Asize);
 	}
@@ -335,8 +380,9 @@ void Search_Assign()
 	{
 		case '1': Add_Assign();break;
 		case '2': Delete_Assign();break;
-		case '3': return; break;
+		case '3': break;
 	}
+	getch();
 	clear();
 }
 
@@ -351,11 +397,9 @@ void Print_Assign(int Asize)
 	today = localtime(&t);
 	thistime = mktime(today);
 	today_month=today->tm_mon;
-	today_month+=1;
+	today_month+=1; 
 	cur_assign=Login_Num->Child_A;
 	k=1;
-	printw("%d mon, %d date\n",today_month,today->tm_mday);
-	refresh();
 	while(cur_assign != NULL){
 		printw("<%d> Name	: %s\n",k++,cur_assign->name);
 		printw("    Describe	: %s\n",cur_assign->describe);
@@ -376,7 +420,7 @@ void Print_Assign(int Asize)
 					D_day+=30;
 				month++;
 			}
-			printw("    D-day	: -%d\n",(D_day)+(today->tm_mday)-(cur_assign->date[1]));
+			printw("    D-day	: -%d\n",(D_day)-(today->tm_mday)+(cur_assign->date[1]));
 		}
 		else if(today_month == cur_assign->date[0]){
 			if(today->tm_mday == cur_assign->date[1])
@@ -407,7 +451,6 @@ void Search_CGPA()
 	int exit=0;
 	while(!exit)
 	{
-		clear();
 		switch(cgpa_menu())
 		{
 			case CGPA_ADD:{
@@ -425,7 +468,14 @@ void Search_CGPA()
 								exit = 1;
 								break;
 							}
-			default: break;
+			default: {
+						 clear();
+						 printw("Enter wrong\n");
+						 refresh();
+						 getch();
+						 clear();
+						 break;
+					 }
 		}
 	}
 	exit = 0;
@@ -436,7 +486,7 @@ void Add_GPA()
 	float gpa;
 	int gpa_size;
 	CGPA *cur;
-	clear();
+
 	echo();
 	printw("Input the semester of GPA : ");
 	refresh();
@@ -445,6 +495,7 @@ void Add_GPA()
  	if(semester - '0' > (gpa_size + 1) || semester - '0' < 1) {
     	printw("You entered wrong number!\n");
     	getch();
+		clear();
     	return ;
   	} 
   	printw("Input the GPA : ");
@@ -454,6 +505,7 @@ void Add_GPA()
   	if(gpa < 0 || gpa > 4.31) {
     	printw("You entered wrong number!\n");
     	getch();
+		clear();
     	return ;
   	}
   	if(semester - '0' <= gpa_size) { // change existing gpa
@@ -474,6 +526,7 @@ void Add_GPA()
 		cur=Login_Num->Child_C;
 		while(cur->link != NULL)
 			cur=cur->link;
+		//cur store latest GPA
 		cur->link=malloc(sizeof(CGPA));
 		cur=cur->link;
 		cur->semester=semester-'0';
@@ -497,6 +550,7 @@ void Cor_GPA(char semester, float gpa)
 	  printw("GPA is not changed\n");
   refresh();
   getch();
+  clear();
   return ;
 }
 void Print_CGPA() //Additional
@@ -504,15 +558,15 @@ void Print_CGPA() //Additional
   int i=0;
   int tmpSemester;
   float tmpGPA;
-  float sum = 0;
+  float sum = 0; // sum of gpa until corresponding semester
   CGPA *cur;
-  clear();
+
   printw("<CGPA Management for %s>\n", Curr_Num);
   printw("------------------------------\n");
   printw("  Semester  |  GPA  |  CGPA  |  \n");
   refresh();
   cur=Login_Num->Child_C;
-  while(cur != NULL)
+  while(cur != NULL) // until arriving at the end of the gpa list
   {
 	  tmpSemester=cur->semester;
 	  tmpGPA=cur->score;
@@ -528,33 +582,39 @@ void Print_CGPA() //Additional
   refresh();
   Print_CGPA_Graph();
   getch();
+  clear();
+  return;
 }
 void Print_CGPA_Graph() 
 {
-	CGPA *cgpa_list;
+	CGPA *cgpa_list; // sort high CGPA -> low CGPA (if CGPA is same, early semester -> late semester)
 	CGPA *cur_cgpa;
-	int i,j,k;
+	int i,j,k;// i indicates gpa's integer portion / j indicates gpa's decimal portion's range / k indicates semester
 	int index;
 	int temp_semester;
 	float temp_score;
 	int insert_index; // cgpa_list[index] will be inserted in front of cgpa_list[insert_index]
 	int cgpa_size;
 	float left;
-	float right;
-	float *score_list;
-	
+	float right; // right and left indicate gpa's decimal portion's range. These variables are decided by j
+	float *score_list;// after printing '*', score_list is used to print corresponding score next line.
+	                  // this list's index indicates semester
+					  // -1 means 'not printing'	
 	cgpa_size=Login_Num->CGPA_Size;
 	cgpa_list=malloc(sizeof(CGPA)*cgpa_size);
 	score_list=malloc(sizeof(float)*8);
 	for(i=0;i<8;i++)
 		score_list[i]=-1;
+	//make cgpa_list : input CGPA in the cgpa_list
 	index=0;
 	cur_cgpa=Login_Num->Child_C;
 	while(cur_cgpa != NULL){
 		cgpa_list[index++]=*(cur_cgpa);
 		cur_cgpa=cur_cgpa->link;
 	}
+	//make cgpa_list :sorting like insertion sort
 	for(index=1;index<cgpa_size;index++){
+		//finding insertion point
 		insert_index=0;
 		while(insert_index<index &&  cgpa_list[insert_index].score>cgpa_list[index].score)
 			insert_index++;
@@ -564,14 +624,17 @@ void Print_CGPA_Graph()
 		}
 		if(insert_index == index)
 			continue;
+		//make insertion space
 		temp_semester=cgpa_list[index].semester;
 		temp_score=cgpa_list[index].score;
 		for(;index>insert_index;index--){
 			cgpa_list[index]=cgpa_list[index-1];
 		}
+		//insertion
 		cgpa_list[insert_index].score=temp_score;
 		cgpa_list[insert_index].semester=temp_semester;
 	}
+	//printing graph
 	index=0;
 	j=4;
 	for(i=4;i>=0;i--){
@@ -580,7 +643,7 @@ void Print_CGPA_Graph()
 				printw(" %d.0 |",i);
 			else
 				printw("     |");
-			for(k=1;k<=8;k++){
+			for(k=1;k<=8;k++){ 
 				if(index < cgpa_size && k == cgpa_list[index].semester){
 					right=0.2*j+i;
 					left=0.2*(j-1)+i;
@@ -590,13 +653,13 @@ void Print_CGPA_Graph()
 						index++;
 						continue;
 					}				
-				}
+				} 
 				if(score_list[k-1]>=0){
 					printw(" %.2f ",score_list[k-1]);
 					score_list[k-1]=-1;
 				}
 				else{
-					printw("      ");
+					printw("      "); // not printing
 					score_list[k-1]=-1;
 				}
 				refresh();
@@ -634,24 +697,28 @@ void Sort_Assign()
 	pre=Login_Num->Child_A;
 	cur=Login_Num->Child_A->link;
 
+	// using insertion-sort
 	while(cur != NULL){
+		//find insert_position from start
 		insert_position=Login_Num->Child_A;
-		if(insert_position->date[0] > cur->date[0]){
+		if(insert_position->date[0] > cur->date[0]){ 
+			//case :  insert in front of Login_Num->Child_A
 			pre->link=cur->link;
 			cur->link=Login_Num->Child_A;
 			Login_Num->Child_A=cur;
-			pre=cur;
-			cur=cur->link;
+			cur=pre->link;
 			continue;
 		}
 		else if(insert_position->date[0] == cur->date[0] && insert_position->date[1] > cur->date[1]){
+			//case: insert in front of Login_Num->Child_A
 			pre->link=cur->link;
 			cur->link=Login_Num->Child_A;
 			Login_Num->Child_A=cur;
-			pre=cur;
-			cur=cur->link;
+			cur=pre->link;
 			continue;
 		}
+		//find insert position(not in front of Login_Num->Child_A)
+		//insert_position which current assign(ASSIGN *cur) is linked to
 		while(insert_position != pre){
 			if(insert_position->link->date[0]>cur->date[0])
 				break;
@@ -672,6 +739,8 @@ void Sort_Assign()
 void Add_Assign()
 {
 	ASSIGN* new=malloc(sizeof(ASSIGN));
+	int wrong=0;
+	printw("Add New Assignment\n");
 	printw("Enter the name of new assignment:\n");
 	refresh();
 	echo();
@@ -692,20 +761,42 @@ void Add_Assign()
 	refresh();
 	echo();
 	scanw("%d",&new->date[1]);
+	//decide whether or not date is entered correctly
+	if(new->date[0]<=0 || new->date[0]>12)
+		wrong=1;
+	else if(new->date[1]<=0 || new->date[1]>31)
+		wrong=1;
+	else if(new->date[0]<= 7 && new->date[0]%2 ==0){
+		if(new->date[1] == 31)
+			wrong=1;
+	}
+	else if(new->date[0]>7 && new->date[0]%2==1){
+		if(new->date[1] == 31)
+			wrong=1;
+	}
+	if(wrong){
+		printw("You entered wrong date\n");
+		refresh();
+		getch();
+		clear();
+		free(new);
+		return;
+	}
+	// insert in front of (Login_Num->Child_A)
 	new->link=Login_Num->Child_A;
 	Login_Num->Child_A=new;
 	Login_Num->Assign_Size+=1;
 	printw("New assignment is successfully added!!\n");
 	refresh();
-	noecho();
-	wgetch(stdscr);
+	getch();
 	clear();
 }
 void Delete_Assign()
 {
 	int flag=0;
-	char compare1[300];
-	char compare2[300];
+	int wrong=0;
+	char compare1[300]; // store entered assignment's name and describe, professor ina line
+	char compare2[300]; // store already stored assignment's name and describe,professor in a line
 	int date[2];
 	ASSIGN* pre;
 	ASSIGN* cur;
@@ -713,8 +804,7 @@ void Delete_Assign()
 	if(Login_Num->Assign_Size == 0){
 		printw("There is no assignment\n");
 		refresh();
-		noecho();
-		wgetch(stdscr);
+		getch();
 		clear();
 		return;
 	}
@@ -740,22 +830,49 @@ void Delete_Assign()
 	refresh();
 	echo();
 	scanw("%d",&date[1]);
+	if(new->date[0]<=0 || new->date[0]>12)
+		wrong=1;
+	else if(new->date[1]<=0 || new->date[1]>31)
+		wrong=1;
+	else if(new->date[0]<= 7 && new->date[0]%2 ==0){
+		if(new->date[1] == 31)
+			wrong=1;
+	}
+	else if(new->date[0]>7 && new->date[0]%2==1){
+		if(new->date[1] == 31)
+			wrong=1;
+	}
+	if(wrong){
+		printw("You entered wrong date\n");
+		refresh();
+		getch();
+		clear();
+		free(new);
+		return;
+	}
+	
 	pre=NULL;
 	cur=Login_Num->Child_A;
 	while(cur != NULL && cur->date[0]<date[0]){
 		pre=cur;
 		cur=cur->link;
 	}
-	while(cur != NULL && cur->date[1] < date[1]){
+	//after above process: (if all of stored assignment's due date month is earlier than entered month, cur stores NULL)
+	//					   (if not, all assignments following 'cur' in the list are same or later than entered month)
+
+	while(cur != NULL && cur->date[1] < date[1]){ // search until already stored assignment's month is same as the entered month and date is earlier than entered date
 		if(cur->date[0] != date[0])
 			break;
 		pre=cur;
 		cur=cur->link;
 	}
+	// 
 	while(cur != NULL && cur->date[1] == date[1] && cur->date[0] == date[0]){
+		// only for date is same
 		strncpy(compare2,cur->name,strlen(cur->name)+1);
 		strncat(compare2,cur->describe,strlen(cur->describe));
 		strncat(compare2,cur->professor,strlen(cur->professor));
+
 		if(strlen(compare1) == strlen(compare2) && strncmp(compare1,compare2,strlen(compare2)) == 0){
 			flag=1;
 			break;
@@ -773,79 +890,117 @@ void Delete_Assign()
 			pre->link=cur->link;
 		free(cur);
 	}
-	noecho();
-	wgetch(stdscr);
+	else{
+		printw("Fail deletion\n");
+		regresh();
+	}
+	getch();
 	clear();
 }
 void New_Account()
 {
 	int i;
-	YEAR *pre_year=NULL;
+	char tp;
+	int enter_flag;
+	YEAR *pre_year;
 	YEAR * cur_year;
-	STUDENT * pre_student=NULL;
+	STUDENT * pre_student;
 	STUDENT * cur_student;
-	printw("Student Number: ");
-	refresh();
-	echo();
-	scanw("%8s",Curr_Num);
-	printw("Password: ");
-	refresh();
-	noecho();
-	scanw("%15s",Curr_Pass);
-	cur_year=TOP->ST_YEAR;
-	while(cur_year != NULL && strncmp(cur_year->year,Curr_Num,4)<0){
-		pre_year=cur_year;
-		cur_year=cur_year->link;
-	}
-	if(cur_year == NULL || strncmp(cur_year->year,Curr_Num,4)!=0){
-		cur_year=malloc(sizeof(YEAR));
-		strncpy(cur_year->year,Curr_Num,4);
-		cur_year->Num_Size =0;
-		cur_year ->ST_NUM = NULL;
-		TOP->Year_Size +=1;
-		if(pre_year== NULL){
-			cur_year->link=TOP->ST_YEAR;
-			TOP->ST_YEAR=cur_year;
-		}
-		else{
-			cur_year->link=pre_year->link;
-			pre_year->link=cur_year;
-		}
-	}
-	cur_student=cur_year->ST_NUM;
-	while(cur_student != NULL && strcmp(cur_student->number,Curr_Num+4)<0){
-		pre_student=cur_student;
-		cur_student=cur_student->link;
-	}
-	//Exception 
-	if(cur_student != NULL && strcmp(cur_student->number,Curr_Num+4) ==0){
-		printw("Entered student number exist\n");
+	while(1){
+		enter_flag=1;
+		printw("Student Number: ");
 		refresh();
-	}
-	else{
-		cur_student=malloc(sizeof(STUDENT));
-		strcpy(cur_student->number,Curr_Num+4);
-		strcpy(cur_student->password,Curr_Pass);
-		cur_student->Child_A=NULL;
-		cur_student->Child_C=NULL;
-		cur_student->Assign_Size=0;
-		cur_student->CGPA_Size=0;
-		cur_year->Num_Size+=1;
-		if(pre_student == NULL){
-			cur_student->link=cur_year->ST_NUM;
-			cur_year->ST_NUM=cur_student;
+		echo();
+		scanw("%8s",Curr_Num);
+		scanw("%c",&tp);
+		if(tp != '\n'){
+			while(tp != '\n')
+				scanw("%c",&tp);
+			enter_flag=0;
+		}
+		for(i=0;i<8;i++){
+			if(Curr_Num[i]<'0' || Curr_Num[i]>9'){
+				enter_flag=0;
+				break;
+			}
+		}
+		printw("Password: ");
+		refresh();
+		noecho();
+		scanw("%15s",Curr_Pass);
+		scanw("%c",&tp);
+		if(tp != '\n'){
+			while(tp != '\n')
+				scanw("%c",&tp);
+			enter_flag=0;
+		}
+		if(!enter_flag){
+			printw("Incorrect\n");
+			refresh();
+			getch();
+			clear();
+			continue;
+		}
+		//find same year or insert-point of year list
+		pre_year=NULL;
+		cur_year=TOP->ST_YEAR;
+		while(cur_year != NULL && strncmp(cur_year->year,Curr_Num,4)<0){
+			pre_year=cur_year;
+			cur_year=cur_year->link;
+		}
+		if(cur_year == NULL || strncmp(cur_year->year,Curr_Num,4)!=0){
+			cur_year=malloc(sizeof(YEAR));
+			strncpy(cur_year->year,Curr_Num,4);
+			cur_year->Num_Size =0;
+			cur_year ->ST_NUM = NULL;
+			TOP->Year_Size +=1;
+			if(pre_year== NULL){
+				cur_year->link=TOP->ST_YEAR;
+				TOP->ST_YEAR=cur_year;
+			}
+			else{
+				cur_year->link=pre_year->link;
+				pre_year->link=cur_year;
+			}
+		}
+		//find insert-point of student list
+		cur_student=cur_year->ST_NUM;
+		while(cur_student != NULL && strcmp(cur_student->number,Curr_Num+4)<0){
+			pre_student=cur_student;
+			cur_student=cur_student->link;
+		}
+		//Exception : entered student already exists
+		if(cur_student != NULL && strcmp(cur_student->number,Curr_Num+4) ==0){
+			printw("Entered student number exist\n");
+			refresh();
 		}
 		else{
-			cur_student->link=pre_student->link;
-			pre_student->link=cur_student;
+			// insert entered student
+			cur_student=malloc(sizeof(STUDENT));
+			strcpy(cur_student->number,Curr_Num+4);
+			strcpy(cur_student->password,Curr_Pass);
+			cur_student->Child_A=NULL;
+			cur_student->Child_C=NULL;
+			cur_student->Assign_Size=0;
+			cur_student->CGPA_Size=0;
+			cur_year->Num_Size+=1;
+			if(pre_student == NULL){
+				cur_student->link=cur_year->ST_NUM;
+				cur_year->ST_NUM=cur_student;
+			}
+			else{
+				cur_student->link=pre_student->link;
+				pre_student->link=cur_student;
+			}
 		}
 	}
+	getch();
 	clear();
-	printing();
 }
 void Delete_Account()
 {
 	int i;
+	char tp;
 	YEAR* pre_year;
 	YEAR* cur_year;
 	STUDENT* pre_student;
@@ -854,26 +1009,82 @@ void Delete_Account()
 	ASSIGN* cur_assign;
 	CGPA* pre_cgpa=NULL;
 	CGPA* cur_cgpa;
+	float score;
+
 	printw("Enter student number you want to delete : ");
 	refresh();
 	echo();
 	scanw("%8s",Curr_Num);
+	scanw("%c",&tp);
+	if(tp != '\n'){
+		while(tp != '\n')
+			scanw("%c",&tp);
+		printw("Incorrect\n");
+		refresh();
+		getch();
+		clear();
+		return;
+	}
+	for(i=0;i<8;i++){
+		if(Curr_Num[i]<'0' || Curr_Num[i]>'9'){
+			printw("Incorrect\n");
+			refresh();
+			getch();
+			clear();
+			return;
+		}
+	}
+	//find corresponding YEAR structure
 	pre_year=NULL;
 	cur_year=TOP->ST_YEAR;
 	while(cur_year != NULL && strncmp(cur_year->year,Curr_Num,4)!=0){
 		pre_year=cur_year;
 		cur_year=cur_year->link;
 	}
-	if(cur_year == NULL)
+	if(cur_year == NULL){
+		printw("Entered student number is not found\n");
+		refresh();
+		getch();
+		clear();
 		return;
+	}
+	//find corresponding STUDENT structure
 	pre_student=NULL;
 	cur_student=cur_year->ST_NUM;
 	while(cur_student != NULL && strcmp(cur_student->number,Curr_Num+4)!=0){
 		pre_student=cur_student;
 		cur_student=cur_student->link;
 	}
-	if(cur_student == NULL)
+	if(cur_student == NULL){
+		printw("Entered student number is not found\n");
+		refresh();
+		getch();
+		clear();
 		return;
+	}
+
+	printw("Enter student password : ");
+	refresh();
+	echo();
+	scanw("%15s",Curr_Pass);
+	scanw("%c",&tp);
+	if(tp !='\n'){
+		while(tp != '\n')
+			scanw("%c",&tp);
+		printw("Incorrect\n");
+		refresh();
+		getch();
+		clear();
+		return;
+	}
+	if(strncmp(cur_student->password,Curr_Pass,strlen(Curr_Pass) != 0)){
+			printw("Entered password doesn't match\n");
+			refresh();
+			getch();
+			clear();
+			return;
+	}
+	//delete corresponding account
 	cur_assign=cur_student->Child_A;
 	while(cur_assign != NULL){
 		free(pre_assign);
@@ -886,12 +1097,14 @@ void Delete_Account()
 		pre_cgpa=cur_cgpa;
 		cur_cgpa=cur_cgpa->link;
 	}
+
 	if(pre_student == NULL)
 		cur_year->ST_NUM=cur_student->link;
 	else
 		pre_student->link=cur_student->link;
 	cur_year->Num_Size-=1;
 	free(cur_student);
+
 	if(cur_year->Num_Size ==0){
 		if(pre_year == NULL)
 			TOP->ST_YEAR=cur_year->link;
@@ -900,75 +1113,112 @@ void Delete_Account()
 		free(cur_year);
 		TOP->Year_Size-=1;
 	}
+	printw("Successfully deleted!\n");
+	refresh();
+	getch();
 	clear();
-	printing();
 }
 void Change_Password()
 {
 	char new[16];
 	char confirm[16];
+	char tp;
 	while(1){
 		printw("Enter new password:");
 		refresh();
 		noecho();
 		scanw("%15s",new);
+		scanw("%c",&tp);
+		if( tp != '\n'){
+			while(tp != '\n')
+				scanw("%c",&tp);
+			printw("Your password contain space key or exceed possible length\n");
+			refresh();
+			getch();
+			clear();
+			continue;
+		}
 		printw("Confirm new password:");
 		refresh();
 		noecho();
 		scanw("%15s", confirm);
-		if(strncmp(new,confirm,strlen(new)) == 0){
+		scanw("%c",&tp);
+		if(tp == '\n' && strlen(new) == strlen(confirm) && strncmp(new,confirm,strlen(new)) == 0){
 			strncpy(Login_Num->password, new, strlen(new)+1);
 			printw("Password of Account <%s%s> is successfully changed.\n",Login_Year->year,Login_Num->number);
 			refresh();
 			break;
 		}
+		if(tp != '\n'){
+			while(tp != '\n')
+				scanw("%c",&tp);
+		}
 		printw("Two passwords are not matched.\n");
+		refresh();
+		getch();
 		clear();
 	}
-	noecho();
-	wgetch(stdscr);
-	printing();
-	noecho();
-	wgetch(stdscr);
+	getch();
 	clear();
 }
 
 int login()
 {
   int i,j;
+  int enter_flag=1; // correctly enter : 1  , incorrectly enter : 0
   int year_flag=0;
   int num_flag=0;
   int pass_flag=0;
   char year[5]={};
   char num[5]={};
+  char tp; /// to know whether or not the entered string is longer than expection
   YEAR * cur_year;
   STUDENT * cur_student;
+
   printw("Student Number:");
   refresh();
   echo();
-  scanw("%8[^\n]%*c",Curr_Num);
+  scanw("%8[^\n]",Curr_Num);
+  scanw("%c",&tp);
+  if(tp != '\n'){
+	  while(tp != '\n')
+		  scanw("%c",&tp);
+	  enter_flag = 0;
+  }
+  for(i=0;i<8;i++)
+	  if(Curr_Num[i]< '0' || Curr_Num[i]>'9')
+		  enter_flag=0;
   printw("Password:");
   refresh();
   noecho();
-  scanw("%15[^/n]%*c",Curr_Pass);
-  for(i=0;i<4;i++)
-    year[i]=Curr_Num[i];
-  for(i=4;i<8;i++)
-    num[i-4]=Curr_Num[i];
-  cur_year=TOP->ST_YEAR;
-  while(cur_year != NULL){
-	  if(!strncmp(cur_year->year,year,4)){
-		  year_flag=1;
-		  break;
-	  }
-	  cur_year=cur_year->link;
+  scanw("%15[^/n]",Curr_Pass);
+  scanw("%c",&tp);
+  if(tp != '\n'){
+	  while(tp != '\n')
+		  scanw("%c",&tp);
+	  enter_flag = 0;
+  }
+  if(enter_flag == 1){
+  	for(i=0;i<4;i++)
+    	year[i]=Curr_Num[i];
+  	for(i=4;i<8;i++)
+    	num[i-4]=Curr_Num[i];
+  	//find corresponding YEAR structure
+ 	cur_year=TOP->ST_YEAR;
+  	while(cur_year != NULL){
+	  	if(!strncmp(cur_year->year,year,4)){
+		  	year_flag=1;
+		  	break;
+	  	}
+	  	cur_year=cur_year->link;
+  	}
   }
   if(year_flag==1)
   {
+	  //find corresponding STUDENT structure
 	  cur_student=cur_year->ST_NUM;
 	  while(cur_student != NULL){
-      	if(!strncmp(cur_student->number,num,4))
-      	{
+      	if(!strncmp(cur_student->number,num,4)){
         	num_flag=1;
        		break;
       	}
@@ -976,49 +1226,84 @@ int login()
       }
   }
   if(num_flag==1){
+	  // whether or not password is matching
 	  if(!strncmp(cur_student->password,Curr_Pass,strlen(Curr_Pass))){
 		  pass_flag=1;
       	  Login_Year=cur_year;//stores logged in user's year
       	  Login_Num=cur_student;//stores logged in user's number
    	  }
   }
-  if(pass_flag==1)
+  if(pass_flag==1){
+	printw("Login success\n");
+	refresh();
+	getch();
+	clear();
     return 1;
-  printw("Login fail\n");
-  refresh();
-  noecho();
-  wgetch(stdscr);
-  return 0;
+  }
+  else{
+	  printw("Login fail\n");
+  	  refresh();
+      getch();
+	  clear();
+	  return 0;
+  }
 }
 
 void Temp_Password()
 {
   int flag1=0;
   int i, j, k;
+  char tp;
   char num[5]={};
   char temppassword[8];
   float temp;
   YEAR * cur_year;
   STUDENT * cur_student;
   CGPA * cur_cgpa;
-  clear();
+  
   echo();
   srand(time(NULL));
   printw("Student Number:");
   refresh();
   scanw("%8s",Curr_Num);
-  refresh();
+  scanw("%c",&tp);
+  if(tp != '\n'){
+	  while(tp != '\n')
+		  scanw("%c",&tp);
+	  prinw("Incorrect\n");
+	  refresh();
+	  getch();
+	  clear();
+	  return;
+  }
+  for(i=0;i<8;i++){
+	  if(Curr_Num[i]<'0' || Curr_Num[i]>'9'){
+		  printw("Incorrect\n");
+		  refresh();
+		  getch();
+		  clear();
+		  return;
+	  }
+  } 
   printw("Input latest semester's GPA:");
   refresh();
   echo();
   scanw("%f",&temp);
+  if(temp<0 || temp>4.3){
+	  printw("Incorrect\n");
+	  refresh();
+	  getch();
+	  clear();
+	  return;
+  }
+
   cur_year=TOP->ST_YEAR;
   while(cur_year!=NULL && strncmp(cur_year->year,Curr_Num,4)!=0)
 	  cur_year=cur_year->link;
   refresh();
-  if(cur_year != NULL){
+  if(cur_year != NULL){ //cur_year is where the entered student is stored
 	  for(i=4;i<8;i++)
-		  num[i-4]=Curr_Num[i];
+		  num[i-4]=Curr_Num[i]; 
 	  cur_student=cur_year->ST_NUM;
 	  while(cur_student!=NULL && strncmp(cur_student->number,num,4)!=0)
 		  cur_student=cur_student->link;
@@ -1026,13 +1311,28 @@ void Temp_Password()
 		  cur_cgpa=cur_student->Child_C;
 		  while(cur_cgpa->link != NULL)
 			  cur_cgpa=cur_cgpa->link;
+		  // cur_cgpa is student's latest gpa
+	  }
+	  else{
+		  printw("Can't find\n");
+		  refresh();
+		  getch();
+		  clear();
+		  return;
 	  }
   }
-  if(temp == cur_cgpa->score){
+  else{
+	  printw("Can't find\n");
+	  refresh();
+	  getch();
+	  clear();
+	  return;
+  }
+  if(cur_cgpa != NULL && temp == cur_cgpa->score){
 	  refresh();
 	  for(i=0;i<8;i++){
 		  j= rand()%127;
-		  if(j<33){
+		  if(j<33){ // the process to set j again
 			  i--;
 			  continue;
 		  }
@@ -1048,8 +1348,10 @@ void Temp_Password()
 	  refresh();
 	  strncpy(cur_student->password,temppassword,9);
   }
-  noecho();
-  wgetch(stdscr);
-  printing();
+  else{
+	  printw("It is not the latest GPA\n");
+	  refresh();
+  }
+  getch();
   clear();
 }
