@@ -60,8 +60,8 @@ typedef struct HEAD
   int Year_Size;
   YEAR* ST_YEAR;
 }TREE_HEAD;
-int Login_Year;
-int Login_Num;
+YEAR* Login_Year;
+STUDENT* Login_Num;
 int Year_Count=8;
 int Student_Count;
 int Assign_Count;
