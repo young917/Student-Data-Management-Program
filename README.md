@@ -1,6 +1,12 @@
 # **_student-data-management-program_**
 
-## flow chart 
+## Term
+
+2017.11.23 ~ 2017.12.15
+
+---
+
+## Flow Chart 
 
 ![flow chart](https://github.com/young917/student-data-management-program/blob/master/%EC%88%9C%EC%84%9C%EB%8F%84.png?raw=true)
 
