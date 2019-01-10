@@ -26,7 +26,7 @@
 
 # 1.1. Assignment Management
 
-<img src="https://user-images.githubusercontent.com/30820487/50948877-800f5480-14e7-11e9-8594-ec97b6056638.png" width="40%" height="40%">
+<img src="https://user-images.githubusercontent.com/30820487/50948877-800f5480-14e7-11e9-8594-ec97b6056638.png" width="60%" height="60%">
 
 # 1.1.1. New Assignment
 
@@ -38,7 +38,7 @@
 
 # 1.2.2. View all
 
-<img src="https://user-images.githubusercontent.com/30820487/50949053-0deb3f80-14e8-11e9-875a-1836d262fe7d.png" width="40%" height="40%">
+<img src="https://user-images.githubusercontent.com/30820487/50949053-0deb3f80-14e8-11e9-875a-1836d262fe7d.png" width="60%" height="60%">
 
 # 1.3. Change Password
 
