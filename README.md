@@ -7,16 +7,16 @@
 ---
 
 ## Flow Chart 
-
-![flow chart](https://github.com/young917/student-data-management-program/blob/master/%EC%88%9C%EC%84%9C%EB%8F%84.png?raw=true)
-
 ---
+
+<img src="https://github.com/young917/student-data-management-program/blob/master/%EC%88%9C%EC%84%9C%EB%8F%84.png?raw=true" width="80%" height="80%">
+
 
 ## Program Implementation
 
 # 0. Program Start
 
-![image](https://user-images.githubusercontent.com/30820487/50948686-b39daf00-14e6-11e9-877a-c521ad52508c.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948686-b39daf00-14e6-11e9-877a-c521ad52508c.png" width="80%" height="80%">
 
 # 1. Select Login
 
