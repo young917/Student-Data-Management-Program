@@ -16,7 +16,7 @@
 
 # 0. Program Start
 
-<img src="https://user-images.githubusercontent.com/30820487/50948686-b39daf00-14e6-11e9-877a-c521ad52508c.png" width="80%" height="80%">
+<img src="https://user-images.githubusercontent.com/30820487/50948686-b39daf00-14e6-11e9-877a-c521ad52508c.png" width="40%" height="40%">
 
 # 1. Select Login
 
