@@ -20,33 +20,33 @@
 
 # 1. Select Login
 
-![image](https://user-images.githubusercontent.com/30820487/50948723-dcbe3f80-14e6-11e9-9a70-efa2f364ca3a.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948723-dcbe3f80-14e6-11e9-9a70-efa2f364ca3a.png" width="40%" height="40%">
 
-![image](https://user-images.githubusercontent.com/30820487/50948754-f9f30e00-14e6-11e9-84ac-19f16f0414df.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948754-f9f30e00-14e6-11e9-84ac-19f16f0414df.png" width="40%" height="40%">
 
 # 1.1. Assignment Management
 
-![image](https://user-images.githubusercontent.com/30820487/50948877-800f5480-14e7-11e9-8594-ec97b6056638.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948877-800f5480-14e7-11e9-8594-ec97b6056638.png" width="40%" height="40%">
 
 # 1.1.1. New Assignment
 
-![image](https://user-images.githubusercontent.com/30820487/50948928-ae8d2f80-14e7-11e9-972d-84ed8ec190ee.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948928-ae8d2f80-14e7-11e9-972d-84ed8ec190ee.png" width="40%" height="40%">
 
 # 1.2. CGPA Management
 
-![image](https://user-images.githubusercontent.com/30820487/50948982-de3c3780-14e7-11e9-84e4-2e5b674b444e.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948982-de3c3780-14e7-11e9-84e4-2e5b674b444e.png" width="40%" height="40%">
 
 # 1.2.2. View all
 
-![image](https://user-images.githubusercontent.com/30820487/50949053-0deb3f80-14e8-11e9-875a-1836d262fe7d.png)
+<img src="https://user-images.githubusercontent.com/30820487/50949053-0deb3f80-14e8-11e9-875a-1836d262fe7d.png" width="40%" height="40%">
 
 # 1.3. Change Password
 
-![image](https://user-images.githubusercontent.com/30820487/50948852-62da8600-14e7-11e9-8990-a649abaa3dcf.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948852-62da8600-14e7-11e9-8990-a649abaa3dcf.png" width="40%" height="40%">
 
 # 4. Select Temporary Password
 
-![image](https://user-images.githubusercontent.com/30820487/50948798-358dd800-14e7-11e9-9502-079449ac4030.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948798-358dd800-14e7-11e9-9502-079449ac4030.png" width="40%" height="40%">
 
 
 ---
@@ -66,7 +66,7 @@ variable saves the STUDENT address that includes the information of the student 
 
 ## structure
 
-![image](https://user-images.githubusercontent.com/30820487/50948465-ea26fa00-14e5-11e9-8d8d-4b5022ef485b.png)
+<img src="https://user-images.githubusercontent.com/30820487/50948465-ea26fa00-14e5-11e9-8d8d-4b5022ef485b.png" width="40%" height="40%">
 
 ---
 
