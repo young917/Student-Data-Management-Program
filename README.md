@@ -21,27 +21,7 @@ variable saves the STUDENT address that includes the information of the student 
 
 ## structure
 
-
-**HEAD**
-
-have SY_YEAR(linked-list of YEAR and it is sorted by year)
-
-**YEAR**
-
-indicate year part of student number and have ST_NUM that is address of first element of student linked-list: this linked-list is composed of the students whose number's year part is same as corresponding YEAR and this linked-list is sorted by student number.
-
-**STUDENT**
-
-have student's number and password. have Child_A(linked-list of student's assignment), have Child_C(linked-list of student's gpa and it is sorted by gpa's semester) 
-
-**CGPA**
-
-have semester, score
-
-**ASSIGN**
-
-have name, describe, professor, date
-
+![image](https://user-images.githubusercontent.com/30820487/50948465-ea26fa00-14e5-11e9-8d8d-4b5022ef485b.png)
 
 ---
 
