@@ -38,15 +38,15 @@
 
 # 1.2.2. View all
 
-<img src="https://user-images.githubusercontent.com/30820487/50949053-0deb3f80-14e8-11e9-875a-1836d262fe7d.png" width="60%" height="60%">
+<img src="https://user-images.githubusercontent.com/30820487/50949053-0deb3f80-14e8-11e9-875a-1836d262fe7d.png" width="45%" height="45%">
 
 # 1.3. Change Password
 
-<img src="https://user-images.githubusercontent.com/30820487/50948852-62da8600-14e7-11e9-8990-a649abaa3dcf.png" width="40%" height="40%">
+<img src="https://user-images.githubusercontent.com/30820487/50948852-62da8600-14e7-11e9-8990-a649abaa3dcf.png" width="60%" height="60%">
 
 # 4. Select Temporary Password
 
-<img src="https://user-images.githubusercontent.com/30820487/50948798-358dd800-14e7-11e9-9502-079449ac4030.png" width="40%" height="40%">
+<img src="https://user-images.githubusercontent.com/30820487/50948798-358dd800-14e7-11e9-9502-079449ac4030.png" width="45%" height="45%">
 
 
 ---
@@ -66,7 +66,7 @@ variable saves the STUDENT address that includes the information of the student 
 
 ## structure
 
-<img src="https://user-images.githubusercontent.com/30820487/50948465-ea26fa00-14e5-11e9-8d8d-4b5022ef485b.png" width="40%" height="40%">
+<img src="https://user-images.githubusercontent.com/30820487/50948465-ea26fa00-14e5-11e9-8d8d-4b5022ef485b.png" width="60%" height="60%">
 
 ---
 
